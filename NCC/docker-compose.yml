@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+# used doc : https://medium.com/@adamsokode/dockerize-django-application-with-nginx-reverse-proxy-79036606fa5
+  nginx:
+    build: ./nginx
+    volumes:
+      - ./static:/home/app/static
+    ports:
+      - 8000:80
+    depends_on:
+      - web
+    restart: "on-failure"
+
+
+  web:
+    build: . #build the image for the web service from the dockerfile in parent directory
+    command: sh -c "python manage.py makemigrations &&
+                    python manage.py migrate &&
+                    python manage.py collectstatic --no-input &&
+                    gunicorn NCC.wsgi:application --bind 0.0.0.0:8000"
+    volumes:
+      - .:/home/app # map data and files from parent directory in host to microservice directory in docker containers
+      - /var/run/docker.sock:/var/run/docker.sock
+      # - /usr/bin/docker:/usr/bin/docker
+      - ./static:/home/app/static
+    depends_on:
+      - postgres_db
+      - redis
+    env_file:
+      - .env
+  
+  redis:
+    restart: unless-stopped
+    image: redis:7.0.5-alpine 
+    expose:
+        - 6379
+
+  postgres_db:
+    image: postgres:13.0-alpine
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+        
+volumes:
+  static_volume:
+  postgres_data:
+
+

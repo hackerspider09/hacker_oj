@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,7 +41,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'core',
-    'postContest',
+    'contest',
+    'question',
+    'submission',
+    'player',
+    # 'postContest',
     'Judge',
     'tinymce',
 
@@ -90,6 +95,27 @@ DATABASES = {
     }
 }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'HOST': os.environ.get('POSTGRES_HOST'),
+#         'NAME': os.environ.get('POSTGRES_NAME'),
+#         'USER': os.environ.get('POSTGRES_USER'),
+#         'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+#         'PORT': os.environ.get('POSTGRES_PORT', 5432),
+#     }
+# }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'ncc_db',
+#         'USER': 'postgres',  # Make sure it matches your PostgreSQL container's user
+#         'PASSWORD': 'postgres',  # Make sure it matches your PostgreSQL container's password
+#         'HOST': 'postgres_db',  # Make sure it matches your PostgreSQL service name in Docker Compose
+#         'PORT': '5432',
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -131,6 +157,7 @@ USE_I18N = True
 USE_TZ = True
 
 
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
@@ -166,10 +193,29 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.ScopedRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'submit': '7/min',
+        'submit': '6/min',
+        'rc': '9/min',
         'login': '1/min'
     }
 }
+
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django_redis.cache.RedisCache',
+#         # 'LOCATION': 'redis://127.0.0.1:6379/1', #redis://127.0.0.1:6379/
+#         'LOCATION': 'redis://redis:6379/1',
+#         'OPTIONS': {
+#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#         }
+#     }
+# }
+# SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+# SESSION_CACHE_ALIAS = "default"
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # Default ModelBackend
+    # Your custom authentication backends, if any
+]
 
 # REST_FRAMEWORK = {
 #     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
@@ -183,16 +229,7 @@ REST_FRAMEWORK = {
 
 
 
-# settings.py
-# Celery Configuration
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379'  # Replace with your broker URL
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379'  # Replace with your result backend URL
 
-# CELERY_RESULT_BACKEND = 'django-db' # Replace with your result backend URL
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'Asia/Kolkata'
 
 
 
@@ -201,6 +238,7 @@ CORS_ORIGIN_ALLOW_ALL = True
     
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
+    'http://127.0.0.1:8000'
 ]
 
 
@@ -238,3 +276,7 @@ TINYMCE_DEFAULT_CONFIG = {
 #     # ...
 #     'content_css': '/static/css/tinymce-custom.css',  # Specify the path to your custom CSS file
 # }
+
+
+
+AUTH_USER_MODEL = "player.User"    #Try to put at last if not working (authenticate)

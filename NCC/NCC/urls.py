@@ -15,12 +15,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-import core
+import core,submission,contest,question
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('core.urls')),
-    path('postContest/', include('postContest.urls')),
+    path('core/', include('core.urls')),
+    path('contest/', include('contest.urls')),
+    path('player/', include('player.urls')),
+    path('question/', include('question.urls')),
+    path('submission/', include('submission.urls')),
+
+    path('tinymce/',include('tinymce.urls')),
+    # path('postContest/', include('postContest.urls')),
 ]
 
 from django.conf.urls import handler400, handler403, handler404, handler500
